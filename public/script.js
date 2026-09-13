@@ -173,6 +173,16 @@ form.addEventListener(
                 email
             );
 
+            sessionStorage.setItem(
+                'userName',
+                name
+            );
+
+            sessionStorage.setItem(
+                'userPhone',
+                phone
+            );
+
 
             // Move to the camera step
 

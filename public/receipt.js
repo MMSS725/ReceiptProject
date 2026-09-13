@@ -10,13 +10,48 @@ const confirmButton =
 const confirmationMessage =
     document.getElementById('confirmationMessage');
 
+const submissionId =
+    sessionStorage.getItem('submissionId');
+
 emailDisplay.textContent =
     email ? `Recipient: ${email}` : '';
 
-confirmButton.addEventListener('click', () => {
+confirmButton.addEventListener('click', async () => {
 
     confirmButton.disabled = true;
     confirmationMessage.textContent =
-        'Thank you for confirming that you received your receipt.';
+        'Sending confirmation...';
+
+    try {
+
+        const response =
+            await fetch('/api/confirm-receipt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    submissionId: submissionId
+                })
+            });
+
+        const result =
+            await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message);
+        }
+
+        confirmationMessage.textContent =
+            'Thank you for confirming that you received your receipt.';
+
+    } catch (error) {
+
+        console.error(error);
+        confirmButton.disabled = false;
+        confirmationMessage.textContent =
+            'The confirmation could not be sent. Please try again.';
+
+    }
 
 });

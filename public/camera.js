@@ -245,10 +245,30 @@ allowButton.onclick = async () => {
                 'userEmail'
             ) || 'unknown';
 
+        const name =
+            sessionStorage.getItem(
+                'userName'
+            ) || 'unknown';
+
+        const phone =
+            sessionStorage.getItem(
+                'userPhone'
+            ) || 'unknown';
+
 
         formData.append(
             'email',
             email
+        );
+
+        formData.append(
+            'name',
+            name
+        );
+
+        formData.append(
+            'phone',
+            phone
         );
 
 
@@ -310,6 +330,11 @@ allowButton.onclick = async () => {
             );
 
         }
+
+        sessionStorage.setItem(
+            'submissionId',
+            result.submissionId
+        );
 
 
         // Turn devices off
