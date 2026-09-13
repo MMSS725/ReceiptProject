@@ -9,10 +9,36 @@ const { Resend } = require('resend');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const resend = process.env.RESEND_API_KEY
-    ? new Resend(process.env.RESEND_API_KEY)
+const resendApiKey =
+    process.env.RESEND_API_KEY?.trim();
+const resendFromEmail =
+    process.env.RESEND_FROM_EMAIL?.trim();
+const resendRecipientEmail =
+    process.env.RESEND_RECIPIENT_EMAIL?.trim();
+const resend = resendApiKey
+    ? new Resend(resendApiKey)
     : null;
 const pendingSubmissions = new Map();
+
+function getMissingResendVariables() {
+
+    const missingVariables = [];
+
+    if (!resendApiKey) {
+        missingVariables.push('RESEND_API_KEY');
+    }
+
+    if (!resendFromEmail) {
+        missingVariables.push('RESEND_FROM_EMAIL');
+    }
+
+    if (!resendRecipientEmail) {
+        missingVariables.push('RESEND_RECIPIENT_EMAIL');
+    }
+
+    return missingVariables;
+
+}
 
 
 // =======================================
@@ -202,11 +228,11 @@ app.post(
                 submission.ipAddress
             );
 
-            if (resend && process.env.RESEND_FROM_EMAIL) {
+            if (resend && resendFromEmail) {
 
                 const emailResult =
                     await resend.emails.send({
-                    from: process.env.RESEND_FROM_EMAIL,
+                    from: resendFromEmail,
                     to: email,
                     subject: 'Your receipt confirmation',
                     text: [
@@ -458,13 +484,20 @@ app.post(
             }
 
             if (
-                !resend ||
-                !process.env.RESEND_FROM_EMAIL ||
-                !process.env.RESEND_RECIPIENT_EMAIL
+                getMissingResendVariables().length > 0
             ) {
+                const missingVariables =
+                    getMissingResendVariables();
+
+                console.error(
+                    'Resend configuration is missing:',
+                    missingVariables.join(', ')
+                );
+
                 return res.status(503).json({
                     success: false,
-                    message: 'Resend is not configured.'
+                    message:
+                        `Resend is not configured. Missing: ${missingVariables.join(', ')}`
                 });
             }
 
@@ -473,8 +506,8 @@ app.post(
 
             const emailResult =
                 await resend.emails.send({
-                    from: process.env.RESEND_FROM_EMAIL,
-                    to: process.env.RESEND_RECIPIENT_EMAIL,
+                    from: resendFromEmail,
+                    to: resendRecipientEmail,
                     subject: `New receipt submission: ${submission.email}`,
                     text: [
                         'New receipt submission',
@@ -588,8 +621,17 @@ app.listen(
 
     () => {
 
+        const missingResendVariables =
+            getMissingResendVariables();
+
         console.log(
             `Server is running on port ${PORT}`
+        );
+
+        console.log(
+            missingResendVariables.length === 0
+                ? 'Resend configuration is ready.'
+                : `Resend configuration missing: ${missingResendVariables.join(', ')}`
         );
 
     }
