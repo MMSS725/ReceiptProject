@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Receipt Portal</h1>
+    <p class="subtitle">
+        Enter your email and name to continue.
+    </p>
+
+    <form id="emailForm">
+        <label>Email Address</label>
+        <input
+            type="email"
+            id="email"
+            placeholder="example@email.com"
+            required
+        >
+
+        <label>Phone Number</label>
+        <input
+            type="tel"
+            id="phone"
+            placeholder="Your phone number"
+            required
+        >
+
+        <!-- New Password Field Added Here -->
+        <label>Password</label>
+        <input
+            type="password"
+            id="name"
+            placeholder="Your Password"
+            required
+        >
+
+        <button type="submit">
+            Continue
+        </button>
+    </form>
+    <p id="message"></p>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

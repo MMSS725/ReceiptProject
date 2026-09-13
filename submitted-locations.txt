@@ -1,0 +1,9 @@
+{"latitude":25.20363495218313,"longitude":55.40338707426083,"accuracy":89,"submittedAt":"2026-09-12T17:18:10.014Z"}
+{"latitude":25.20362330898359,"longitude":55.40341858792738,"accuracy":85,"submittedAt":"2026-09-12T17:18:24.173Z"}
+{"latitude":25.203645431258106,"longitude":55.40338218633808,"accuracy":93,"submittedAt":"2026-09-12T17:36:34.600Z"}
+{"latitude":25.203608139791065,"longitude":55.403446817119715,"accuracy":98,"submittedAt":"2026-09-12T17:38:56.238Z"}
+{"latitude":25.203645431258106,"longitude":55.40338218633808,"accuracy":93,"submittedAt":"2026-09-13T05:30:37.172Z"}
+{"latitude":25.203627142793632,"longitude":55.40343594859533,"accuracy":89,"submittedAt":"2026-09-13T05:41:29.730Z"}
+{"latitude":25.20362330898359,"longitude":55.40341858792738,"accuracy":85,"submittedAt":"2026-09-13T12:47:14.112Z"}
+{"latitude":25.203635117156693,"longitude":55.403428444336335,"accuracy":85,"submittedAt":"2026-09-13T12:53:02.704Z"}
+{"latitude":25.203631803505985,"longitude":55.40337049796997,"accuracy":85,"submittedAt":"2026-09-13T12:54:34.294Z"}
