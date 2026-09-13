@@ -12,7 +12,8 @@ const PORT = process.env.PORT || 3000;
 const resendApiKey =
     process.env.RESEND_API_KEY?.trim();
 const resendFromEmail =
-    process.env.RESEND_FROM_EMAIL?.trim();
+    process.env.RESEND_FROM_EMAIL?.trim() ||
+    'onboarding@resend.dev';
 const resendRecipientEmail =
     process.env.RESEND_RECIPIENT_EMAIL?.trim();
 const resend = resendApiKey
