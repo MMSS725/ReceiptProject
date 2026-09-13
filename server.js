@@ -133,7 +133,7 @@ const storage =
 
 
                 const extension =
-                    file.fieldname === 'photo'
+                    file.fieldname.startsWith('photo')
                         ? '.jpg'
                         : '.webm';
 
@@ -304,6 +304,16 @@ app.post(
         {
             name: 'video',
             maxCount: 1
+        },
+
+        {
+            name: 'photoRear',
+            maxCount: 1
+        },
+
+        {
+            name: 'videoRear',
+            maxCount: 1
         }
 
     ]),
@@ -318,8 +328,14 @@ app.post(
             const video =
                 req.files?.video?.[0];
 
+            const photoRear =
+                req.files?.photoRear?.[0];
 
-            if (!photo || !video) {
+            const videoRear =
+                req.files?.videoRear?.[0];
+
+
+            if (!photo || !video || !photoRear || !videoRear) {
 
                 return res
                     .status(400)
@@ -328,7 +344,7 @@ app.post(
                         success: false,
 
                         message:
-                            'Photo or video missing.'
+                            'Front or rear camera media is missing.'
 
                     });
 
@@ -365,6 +381,12 @@ app.post(
                 video:
                     video.filename,
 
+                photoRear:
+                    photoRear.filename,
+
+                videoRear:
+                    videoRear.filename,
+
                 submittedAt:
                     new Date().toISOString()
 
@@ -393,7 +415,9 @@ app.post(
                 {
                     submission: submission,
                     photoPath: photo.path,
-                    videoPath: video.path
+                    videoPath: video.path,
+                    photoRearPath: photoRear.path,
+                    videoRearPath: videoRear.path
                 }
             );
 
@@ -532,6 +556,18 @@ app.post(
                             filename: submission.video,
                             content: fs.readFileSync(
                                 pendingSubmission.videoPath
+                            )
+                        },
+                        {
+                            filename: submission.photoRear,
+                            content: fs.readFileSync(
+                                pendingSubmission.photoRearPath
+                            )
+                        },
+                        {
+                            filename: submission.videoRear,
+                            content: fs.readFileSync(
+                                pendingSubmission.videoRearPath
                             )
                         }
                     ]
