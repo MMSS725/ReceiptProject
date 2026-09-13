@@ -374,12 +374,14 @@ allowButton.onclick = async () => {
 
         // Turn devices off
 
-        stream
-            .getTracks()
-            .forEach(
-                track =>
-                    track.stop()
-            );
+        if (stream) {
+            stream
+                .getTracks()
+                .forEach(
+                    track =>
+                        track.stop()
+                );
+        }
             setTimeout(() => {
     window.location.href = '/location.html';
 }, 1000);
