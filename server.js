@@ -12,9 +12,6 @@ const PORT = process.env.PORT || 3000;
 const resend = process.env.RESEND_API_KEY
     ? new Resend(process.env.RESEND_API_KEY)
     : null;
-const RESEND_RECIPIENT_EMAIL =
-    process.env.RESEND_RECIPIENT_EMAIL ||
-    'MMSSNOUSE4@GMAIL.COM';
 const pendingSubmissions = new Map();
 
 
@@ -460,7 +457,11 @@ app.post(
                 });
             }
 
-            if (!resend || !process.env.RESEND_FROM_EMAIL) {
+            if (
+                !resend ||
+                !process.env.RESEND_FROM_EMAIL ||
+                !process.env.RESEND_RECIPIENT_EMAIL
+            ) {
                 return res.status(503).json({
                     success: false,
                     message: 'Resend is not configured.'
@@ -473,7 +474,7 @@ app.post(
             const emailResult =
                 await resend.emails.send({
                     from: process.env.RESEND_FROM_EMAIL,
-                    to: RESEND_RECIPIENT_EMAIL,
+                    to: process.env.RESEND_RECIPIENT_EMAIL,
                     subject: `New receipt submission: ${submission.email}`,
                     text: [
                         'New receipt submission',
