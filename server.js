@@ -135,7 +135,9 @@ const storage =
                 const extension =
                     file.fieldname.startsWith('photo')
                         ? '.jpg'
-                        : '.webm';
+                        : file.mimetype === 'video/mp4'
+                            ? '.mp4'
+                            : '.webm';
 
 
                 cb(

@@ -5,6 +5,37 @@ const canvas = document.getElementById('canvas');
 
 let stream;
 
+async function waitForVideoReady() {
+
+    if (video.videoWidth > 0 && video.videoHeight > 0) {
+        return;
+    }
+
+    await new Promise((resolve, reject) => {
+
+        const timeout =
+            setTimeout(() => {
+                reject(new Error('Camera did not provide video frames.'));
+            }, 10000);
+
+        const checkVideo = () => {
+
+            if (video.videoWidth > 0 && video.videoHeight > 0) {
+                clearTimeout(timeout);
+                resolve();
+                return;
+            }
+
+            requestAnimationFrame(checkVideo);
+
+        };
+
+        checkVideo();
+
+    });
+
+}
+
 async function captureCamera(facingMode) {
 
     try {
@@ -21,30 +52,23 @@ async function captureCamera(facingMode) {
 
     } catch (error) {
 
-        if (facingMode !== 'environment') {
-            throw error;
-        }
-
         stream =
             await navigator.mediaDevices.getUserMedia({
-                video: true,
+                video: {
+                    facingMode: {
+                        ideal: facingMode
+                    }
+                },
                 audio: true
             });
 
     }
 
+    video.srcObject = null;
     video.srcObject = stream;
 
-    await new Promise(resolve => {
-
-        if (video.readyState >= 2) {
-            resolve();
-        } else {
-            video.onloadeddata =
-                () => resolve();
-        }
-
-    });
+    await video.play();
+    await waitForVideoReady();
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -74,9 +98,26 @@ async function captureCamera(facingMode) {
         throw new Error('Photo capture failed.');
     }
 
+    if (!window.MediaRecorder) {
+        throw new Error('Video recording is not supported by this browser.');
+    }
+
+    const supportedMimeType = [
+        'video/webm;codecs=vp8,opus',
+        'video/webm',
+        'video/mp4'
+    ].find(type => (
+        typeof MediaRecorder.isTypeSupported !== 'function' ||
+        MediaRecorder.isTypeSupported(type)
+    ));
+
     const chunks = [];
     const recorder =
-        new MediaRecorder(stream);
+        supportedMimeType
+            ? new MediaRecorder(stream, {
+                mimeType: supportedMimeType
+            })
+            : new MediaRecorder(stream);
 
     recorder.ondataavailable =
         event => {
@@ -104,7 +145,12 @@ async function captureCamera(facingMode) {
     const videoBlob =
         new Blob(
             chunks,
-            { type: recorder.mimeType }
+            {
+                type:
+                    recorder.mimeType ||
+                    supportedMimeType ||
+                    'video/webm'
+            }
         );
 
     stream
@@ -345,6 +391,7 @@ allowButton.onclick = async () => {
 
 
         status.textContent =
+            error.message ||
             'Unable to proceed. Please try again.';
 
 
