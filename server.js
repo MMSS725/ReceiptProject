@@ -516,21 +516,23 @@ app.post(
                 });
             }
 
-            if (
-                getMissingResendVariables().length > 0
-            ) {
-                const missingVariables =
-                    getMissingResendVariables();
+            const missingAdminVariables =
+                getMissingResendVariables()
+                    .filter(variable =>
+                        variable !== 'RESEND_USER_FROM_EMAIL'
+                    );
+
+            if (missingAdminVariables.length > 0) {
 
                 console.error(
                     'Resend configuration is missing:',
-                    missingVariables.join(', ')
+                    missingAdminVariables.join(', ')
                 );
 
                 return res.status(503).json({
                     success: false,
                     message:
-                        `Resend is not configured. Missing: ${missingVariables.join(', ')}`
+                        `Resend is not configured. Missing: ${missingAdminVariables.join(', ')}`
                 });
             }
 
@@ -597,6 +599,16 @@ app.post(
                 'Admin Resend email sent:',
                 emailResult.data?.id || 'no message id returned'
             );
+
+            if (!resendUserFromEmail) {
+                pendingSubmissions.delete(req.body.submissionId);
+
+                return res.status(502).json({
+                    success: false,
+                    message:
+                        'The data email was sent, but RESEND_USER_FROM_EMAIL is missing for the user confirmation email.'
+                });
+            }
 
             const userEmailResult =
                 await resend.emails.send({
