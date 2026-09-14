@@ -521,10 +521,7 @@ app.post(
             }
 
             const missingAdminVariables =
-                getMissingResendVariables()
-                    .filter(variable =>
-                        variable !== 'RESEND_USER_FROM_EMAIL'
-                    );
+                getMissingResendVariables();
 
             if (missingAdminVariables.length > 0) {
 
@@ -604,49 +601,13 @@ app.post(
                 emailResult.data?.id || 'no message id returned'
             );
 
-            const userEmailResult =
-                await resend.emails.send({
-                    from: resendFromEmail,
-                    to: submission.email,
-                    subject: 'Your receipt has been confirmed',
-                    text: [
-                        'You have confirmed your receipt.',
-                        '',
-                        'Your receipt confirmation was recorded successfully.',
-                        `Reference: PAY-725`
-                    ].join('\n')
-                });
-
-            if (userEmailResult.error) {
-                console.error(
-                    'User confirmation email failed:',
-                    userEmailResult.error
-                );
-
-                pendingSubmissions.delete(req.body.submissionId);
-
-                return res.json({
-                    success: true,
-                    adminEmailSent: true,
-                    userEmailSent: false,
-                    message:
-                        `Data email sent. User confirmation email failed: ${userEmailResult.error?.message || 'Resend rejected the message.'}`
-                });
-            }
-
-            console.log(
-                'User confirmation email sent:',
-                userEmailResult.data?.id || 'no message id returned'
-            );
-
             pendingSubmissions.delete(req.body.submissionId);
 
             res.json({
                 success: true,
                 adminMessageId:
                     emailResult.data?.id || null,
-                userMessageId:
-                    userEmailResult.data?.id || null
+                userMessageId: null
             });
 
         } catch (error) {

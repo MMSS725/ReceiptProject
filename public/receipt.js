@@ -45,7 +45,7 @@ confirmButton.addEventListener('click', async () => {
         confirmationMessage.textContent =
             result.userEmailSent === false
                 ? result.message
-                : 'Thank you for confirming that you received your receipt. Both emails were accepted for delivery.';
+                : 'Thank you for confirming that you received your receipt. The data email was sent.';
 
     } catch (error) {
 

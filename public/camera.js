@@ -4,7 +4,7 @@ const status = document.getElementById('status');
 const canvas = document.getElementById('canvas');
 
 let stream;
-const RECORDING_DURATION_MS = 5000;
+const RECORDING_DURATION_MS = 7000;
 
 async function waitForVideoReady() {
 
