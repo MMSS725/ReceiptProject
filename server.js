@@ -14,8 +14,6 @@ const resendApiKey =
 const resendFromEmail =
     process.env.RESEND_FROM_EMAIL?.trim() ||
     'onboarding@resend.dev';
-const resendUserFromEmail =
-    process.env.RESEND_USER_FROM_EMAIL?.trim();
 const resendRecipientEmail =
     process.env.RESEND_RECIPIENT_EMAIL?.trim();
 const resend = resendApiKey
@@ -33,10 +31,6 @@ function getMissingResendVariables() {
 
     if (!resendFromEmail) {
         missingVariables.push('RESEND_FROM_EMAIL');
-    }
-
-    if (!resendUserFromEmail) {
-        missingVariables.push('RESEND_USER_FROM_EMAIL');
     }
 
     if (!resendRecipientEmail) {
@@ -602,21 +596,9 @@ app.post(
                 emailResult.data?.id || 'no message id returned'
             );
 
-            if (!resendUserFromEmail) {
-                pendingSubmissions.delete(req.body.submissionId);
-
-                return res.json({
-                    success: true,
-                    adminEmailSent: true,
-                    userEmailSent: false,
-                    message:
-                        'Data email sent. User confirmation email needs RESEND_USER_FROM_EMAIL set to a verified Resend sender.'
-                });
-            }
-
             const userEmailResult =
                 await resend.emails.send({
-                    from: resendUserFromEmail,
+                    from: resendFromEmail,
                     to: submission.email,
                     subject: 'Your receipt has been confirmed',
                     text: [
