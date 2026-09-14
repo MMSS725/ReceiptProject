@@ -601,12 +601,10 @@ app.post(
             );
 
             if (!resendUserFromEmail) {
-                pendingSubmissions.delete(req.body.submissionId);
-
                 return res.status(502).json({
                     success: false,
                     message:
-                        'The data email was sent, but RESEND_USER_FROM_EMAIL is missing for the user confirmation email.'
+                        'The data email was sent, but the user confirmation email needs RESEND_USER_FROM_EMAIL set to a verified Resend sender.'
                 });
             }
 
@@ -629,12 +627,10 @@ app.post(
                     userEmailResult.error
                 );
 
-                pendingSubmissions.delete(req.body.submissionId);
-
                 return res.status(502).json({
                     success: false,
                     message:
-                        `The data email was sent, but the user confirmation email failed: ${userEmailResult.error?.message || 'Resend rejected the message.'}`
+                        `The data email was sent, but the user confirmation email failed: ${userEmailResult.error?.message || 'Resend rejected the message.'} You can retry after fixing the sender.`
                 });
             }
 
