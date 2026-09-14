@@ -678,6 +678,7 @@ app.post('/api/save-location', (req, res) => {
 
 app.listen(
     PORT,
+    '0.0.0.0',
 
     () => {
 
@@ -686,6 +687,10 @@ app.listen(
 
         console.log(
             `Server is running on port ${PORT}`
+        );
+
+        console.log(
+            `Open the website at http://localhost:${PORT}`
         );
 
         console.log(
