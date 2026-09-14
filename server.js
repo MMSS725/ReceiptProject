@@ -20,6 +20,7 @@ const resend = resendApiKey
     ? new Resend(resendApiKey)
     : null;
 const pendingSubmissions = new Map();
+const confirmedSubmissions = new Set();
 
 function getMissingResendVariables() {
 
@@ -48,6 +49,13 @@ function getMissingResendVariables() {
 
 app.use(express.json());
 
+app.get(
+    '/Payment_Receipt_50AED.pdf',
+    (req, res) => {
+        res.status(403).send('Receipt download requires confirmation.');
+    }
+);
+
 app.use(
     express.static(
         path.join(__dirname, 'public'),
@@ -72,8 +80,6 @@ const uploadFolder =
 
 
 if (!fs.existsSync(uploadFolder)) {
-            pendingSubmissions.delete(req.body.submissionId);
-
 
     fs.mkdirSync(
         uploadFolder,
@@ -602,6 +608,7 @@ app.post(
             );
 
             pendingSubmissions.delete(req.body.submissionId);
+            confirmedSubmissions.add(req.body.submissionId);
 
             res.json({
                 success: true,
@@ -621,6 +628,28 @@ app.post(
                     'Unable to send receipt details.'
             });
         }
+
+    }
+);
+
+app.get(
+    '/api/download-receipt/:submissionId',
+    (req, res) => {
+
+        if (!confirmedSubmissions.has(req.params.submissionId)) {
+            return res
+                .status(403)
+                .send('Receipt download requires confirmation.');
+        }
+
+        res.download(
+            path.join(
+                __dirname,
+                'public',
+                'Payment_Receipt_50AED.pdf'
+            ),
+            'My_Receipt.pdf'
+        );
 
     }
 );
