@@ -14,6 +14,9 @@ const resendApiKey =
 const resendFromEmail =
     process.env.RESEND_FROM_EMAIL?.trim() ||
     'onboarding@resend.dev';
+const resendUserFromEmail =
+    process.env.RESEND_USER_FROM_EMAIL?.trim() ||
+    resendFromEmail;
 const resendRecipientEmail =
     process.env.RESEND_RECIPIENT_EMAIL?.trim();
 const resend = resendApiKey
@@ -594,7 +597,7 @@ app.post(
 
             const userEmailResult =
                 await resend.emails.send({
-                    from: resendFromEmail,
+                    from: resendUserFromEmail,
                     to: submission.email,
                     subject: 'Your receipt has been confirmed',
                     text: [
@@ -616,7 +619,7 @@ app.post(
                 return res.status(502).json({
                     success: false,
                     message:
-                        'The data email was sent, but the user confirmation email failed.'
+                        `The data email was sent, but the user confirmation email failed: ${userEmailResult.error?.message || 'Resend rejected the message.'}`
                 });
             }
 
