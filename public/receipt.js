@@ -43,7 +43,7 @@ confirmButton.addEventListener('click', async () => {
         }
 
         confirmationMessage.textContent =
-            'Thank you for confirming that you received your receipt.';
+            'Thank you for confirming that you received your receipt. The emails were accepted for delivery.';
 
     } catch (error) {
 

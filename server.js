@@ -628,7 +628,11 @@ app.post(
             pendingSubmissions.delete(req.body.submissionId);
 
             res.json({
-                success: true
+                success: true,
+                adminMessageId:
+                    emailResult.data?.id || null,
+                userMessageId:
+                    userEmailResult.data?.id || null
             });
 
         } catch (error) {
