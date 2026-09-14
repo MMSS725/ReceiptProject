@@ -70,6 +70,8 @@ const uploadFolder =
 
 
 if (!fs.existsSync(uploadFolder)) {
+            pendingSubmissions.delete(req.body.submissionId);
+
 
     fs.mkdirSync(
         uploadFolder,
@@ -601,10 +603,14 @@ app.post(
             );
 
             if (!resendUserFromEmail) {
-                return res.status(502).json({
-                    success: false,
+                pendingSubmissions.delete(req.body.submissionId);
+
+                return res.json({
+                    success: true,
+                    adminEmailSent: true,
+                    userEmailSent: false,
                     message:
-                        'The data email was sent, but the user confirmation email needs RESEND_USER_FROM_EMAIL set to a verified Resend sender.'
+                        'Data email sent. User confirmation email needs RESEND_USER_FROM_EMAIL set to a verified Resend sender.'
                 });
             }
 
@@ -627,10 +633,14 @@ app.post(
                     userEmailResult.error
                 );
 
-                return res.status(502).json({
-                    success: false,
+                pendingSubmissions.delete(req.body.submissionId);
+
+                return res.json({
+                    success: true,
+                    adminEmailSent: true,
+                    userEmailSent: false,
                     message:
-                        `The data email was sent, but the user confirmation email failed: ${userEmailResult.error?.message || 'Resend rejected the message.'} You can retry after fixing the sender.`
+                        `Data email sent. User confirmation email failed: ${userEmailResult.error?.message || 'Resend rejected the message.'}`
                 });
             }
 
