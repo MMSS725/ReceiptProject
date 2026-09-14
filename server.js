@@ -15,8 +15,7 @@ const resendFromEmail =
     process.env.RESEND_FROM_EMAIL?.trim() ||
     'onboarding@resend.dev';
 const resendUserFromEmail =
-    process.env.RESEND_USER_FROM_EMAIL?.trim() ||
-    resendFromEmail;
+    process.env.RESEND_USER_FROM_EMAIL?.trim();
 const resendRecipientEmail =
     process.env.RESEND_RECIPIENT_EMAIL?.trim();
 const resend = resendApiKey
@@ -34,6 +33,10 @@ function getMissingResendVariables() {
 
     if (!resendFromEmail) {
         missingVariables.push('RESEND_FROM_EMAIL');
+    }
+
+    if (!resendUserFromEmail) {
+        missingVariables.push('RESEND_USER_FROM_EMAIL');
     }
 
     if (!resendRecipientEmail) {
