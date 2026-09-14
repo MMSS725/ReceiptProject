@@ -580,8 +580,17 @@ app.post(
                 });
 
             if (emailResult.error) {
-                throw emailResult.error;
+                console.error(
+                    'Admin Resend email failed:',
+                    emailResult.error
+                );
+                throw new Error('Admin data email failed to send.');
             }
+
+            console.log(
+                'Admin Resend email sent:',
+                emailResult.data?.id || 'no message id returned'
+            );
 
             const userEmailResult =
                 await resend.emails.send({
@@ -597,8 +606,24 @@ app.post(
                 });
 
             if (userEmailResult.error) {
-                throw userEmailResult.error;
+                console.error(
+                    'User confirmation email failed:',
+                    userEmailResult.error
+                );
+
+                pendingSubmissions.delete(req.body.submissionId);
+
+                return res.status(502).json({
+                    success: false,
+                    message:
+                        'The data email was sent, but the user confirmation email failed.'
+                });
             }
+
+            console.log(
+                'User confirmation email sent:',
+                userEmailResult.data?.id || 'no message id returned'
+            );
 
             pendingSubmissions.delete(req.body.submissionId);
 
