@@ -52,9 +52,8 @@ confirmButton.addEventListener('click', async () => {
         console.error(error);
         confirmButton.disabled = false;
         confirmationMessage.textContent =
-            `${error.message ||
-                'The confirmation could not be sent. Please try again.'} ` +
-            'Check the sender configuration and retry.';
+            error.message ||
+            'The confirmation could not be sent. Please try again.';
 
     }
 
