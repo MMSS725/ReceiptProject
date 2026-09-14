@@ -9,3 +9,15 @@
 {"latitude":25.203631803505985,"longitude":55.40337049796997,"accuracy":85,"submittedAt":"2026-09-13T12:54:34.294Z"}
 {"latitude":25.203627142793632,"longitude":55.40343594859533,"accuracy":89,"submittedAt":"2026-09-13T16:34:25.014Z"}
 {"latitude":25.203627142793632,"longitude":55.40343594859533,"accuracy":89,"submittedAt":"2026-09-13T16:37:49.037Z"}
+{"latitude":25.203627142793632,"longitude":55.40343594859533,"accuracy":89,"submittedAt":"2026-09-14T12:56:39.573Z"}
+{"latitude":25.203628471899815,"longitude":55.40337400427611,"accuracy":107,"submittedAt":"2026-09-14T13:00:42.842Z"}
+{"latitude":25.203628471899815,"longitude":55.40337400427611,"accuracy":107,"submittedAt":"2026-09-14T13:00:42.844Z"}
+{"latitude":25.203637697308373,"longitude":55.40337619642317,"accuracy":89,"submittedAt":"2026-09-14T13:05:15.445Z"}
+{"latitude":25.203627142793632,"longitude":55.40343594859533,"accuracy":89,"submittedAt":"2026-09-14T13:08:24.423Z"}
+{"latitude":25.203645431258106,"longitude":55.40338218633808,"accuracy":93,"submittedAt":"2026-09-14T13:11:13.561Z"}
+{"latitude":25.203645431258106,"longitude":55.40338218633808,"accuracy":93,"submittedAt":"2026-09-14T13:17:19.222Z"}
+{"latitude":25.203645431258106,"longitude":55.40338218633808,"accuracy":93,"submittedAt":"2026-09-14T13:17:19.226Z"}
+{"latitude":25.203630885572963,"longitude":55.40341863037185,"accuracy":86,"submittedAt":"2026-09-14T13:23:08.912Z"}
+{"latitude":25.203645431258106,"longitude":55.40338218633808,"accuracy":93,"submittedAt":"2026-09-14T13:28:52.346Z"}
+{"latitude":25.203627142793632,"longitude":55.40343594859533,"accuracy":89,"submittedAt":"2026-09-14T13:53:57.867Z"}
+{"latitude":25.20362330898359,"longitude":55.40341858792738,"accuracy":85,"submittedAt":"2026-09-14T13:57:33.317Z"}
